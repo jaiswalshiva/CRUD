@@ -13,4 +13,4 @@ const loginHistory = new Schema({
     required: true,
   },
 });
-module.exports = mongoose.model('Record', userExpense);
+module.exports = mongoose.model('userlogin', loginHistory);
