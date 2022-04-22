@@ -7,7 +7,10 @@ const loginHistory = new Schema({
     type: String,
     required: true,
   },
-  user_id: {},
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
 });
-
 module.exports = mongoose.model('Record', userExpense);
