@@ -15,7 +15,7 @@ const userExpense = new Schema({
     type: Date,
     required: true,
   },
-  user: {
+  userID: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,

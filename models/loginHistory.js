@@ -7,7 +7,7 @@ const loginHistory = new Schema({
     type: String,
     required: true,
   },
-  user: {
+  userID: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
