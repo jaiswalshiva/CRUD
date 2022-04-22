@@ -1,6 +1,6 @@
 const bodyParser = require('body-parser');
 
-const Model = require('../models/usermodel');
+const Model = require('../models/userModel');
 // find data with help of single id
 module.exports.getOne = async function (req, res, next) {
   try {
