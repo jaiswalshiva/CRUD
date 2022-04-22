@@ -1,6 +1,6 @@
 const bodyParser = require('body-parser');
 
-const Model = require('../models/userModel');
+const Model = require('../models/usersModel');
 // this function  means it is show the all data if you send the token or read the data
 module.exports.getAll = async function (req, res, next) {
   //   router.get('/getAll', async (req, res) => {
