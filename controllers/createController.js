@@ -1,6 +1,6 @@
 const bodyParser = require('body-parser');
 
-const Model = require('../models/model');
+const Model = require('../models/usermodel');
 
 // it is use the create or add a new data in the Databse
 module.exports.create = async function (req, res, next) {
@@ -8,6 +8,7 @@ module.exports.create = async function (req, res, next) {
     name: req.body.name,
     age: req.body.age,
     email: req.body.email,
+    password: req.body.password,
   });
   // console.log(data);
   try {

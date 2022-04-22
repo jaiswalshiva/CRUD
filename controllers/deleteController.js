@@ -1,6 +1,6 @@
 const bodyParser = require('body-parser');
 
-const Model = require('../models/model');
+const Model = require('../models/usermodel');
 //update or edit the data with the help of id
 module.exports.delete = async function (req, res, next) {
   try {
