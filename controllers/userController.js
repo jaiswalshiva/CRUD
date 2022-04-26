@@ -21,7 +21,7 @@ module.exports.create = async function (req, res, next) {
     res.status(400).json({ message: error.message });
   }
 };
-
+// get th single data with the help of id
 module.exports.getOne = async function (req, res, next) {
   try {
     const data = await Model.findById(req.params.id);
@@ -30,6 +30,8 @@ module.exports.getOne = async function (req, res, next) {
     res.status(500).json({ message: error.message });
   }
 };
+
+// get All the data with the help of id
 module.exports.getAll = async function (req, res, next) {
   //   router.get('/getAll', async (req, res) => {
   try {
@@ -39,6 +41,7 @@ module.exports.getAll = async function (req, res, next) {
     res.status(500).json({ message: error.message });
   }
 };
+// updated the data
 module.exports.edit = async function (req, res, next) {
   try {
     const id = req.params.id;
@@ -52,6 +55,7 @@ module.exports.edit = async function (req, res, next) {
     res.status(400).json({ message: error.message });
   }
 };
+//Deleted the data help of id
 module.exports.delete = async function (req, res, next) {
   try {
     const id = req.params.id;

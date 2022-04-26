@@ -4,11 +4,13 @@ const mongoose = require('mongoose');
 // app.use(express.json());
 
 const userRoutes = require('./routes/userRoutes');
+const expenseRoutes = require('./routes/expenseRoutes');
 const app = express();
 app.use(express.json());
 const mongoString = process.env.DATABASE_URL;
 
 app.use('/api', userRoutes);
+app.use('/api', expenseRoutes);
 
 mongoose.connect(mongoString);
 const database = mongoose.connection;
