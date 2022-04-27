@@ -1,7 +1,7 @@
-const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt');
-const validator = require('email-validator');
-const Model = require('../models/usersModel');
+const bodyParser = require("body-parser");
+const bcrypt = require("bcrypt");
+const validator = require("email-validator");
+const Model = require("../models/usersModel");
 // const Model = require('../models/expenseModel');
 
 // it is use the create or add a new data in the Databse
