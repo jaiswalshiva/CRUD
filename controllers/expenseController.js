@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const Model = require('../models/expenseModel');
 
-// it is use the create or add a new data in the Databse
+// it is use the create or add a new data in the Databs
 module.exports.create = async function (req, res, next) {
   const data = new Model({
     name: req.body.name,
