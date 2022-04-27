@@ -6,12 +6,12 @@ const Model = require('../models/usersModel');
 
 // it is use the create or add a new data in the Databse
 module.exports.create = async function (req, res, next) {
-  const newpassword=req.body.password;
+  const newPassword=req.body.password;
   const data = new Model({
     name: req.body.name,
     age: req.body.age,
     email: req.body.email,
-    password: await bcrypt.hash(newpassword,10)
+    password: awaitbcrypt.hash(newPassword,10)
  
   });
   // console.log(data);
