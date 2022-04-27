@@ -1,6 +1,7 @@
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
+const emailvalidator = require('email-validator');
 const Model = require('../models/usersModel');
 const jwt = require('jsonwebtoken');
 // user login
