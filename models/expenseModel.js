@@ -3,6 +3,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const userExpense = new Schema({
+  name: {
+    type: String,
+    required: true,
+  },
   amount: {
     type: Number,
     required: true,
@@ -12,7 +16,7 @@ const userExpense = new Schema({
     required: true,
   },
   date: {
-    type: Date,
+    type: String,
     required: true,
   },
   userID: {
