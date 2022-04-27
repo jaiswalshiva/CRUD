@@ -22,6 +22,7 @@ module.exports.login=(req, res, next) => {
             }
             if(result){
                 const token=jwt.sign({
+                    _id:user[0]._id,
                     email:user[0].email,
                     name:user[0].name,
                     userType:user[0].userType
@@ -33,6 +34,7 @@ module.exports.login=(req, res, next) => {
                 }
                 );
                 res.status(200).json({
+                    _id:user[0]._id,
                     userType:user[0].userType,
                     email:user[0].email,
                     name:user[0].name,
