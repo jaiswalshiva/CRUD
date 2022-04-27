@@ -1,6 +1,5 @@
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
-const emailvalidator = require('email-validator');
 const Model = require('../models/usersModel');
 // const Model = require('../models/expenseModel');
 
