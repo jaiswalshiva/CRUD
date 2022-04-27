@@ -1,6 +1,3 @@
-const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt');
-const validator = require('email-validator');
 const Model = require('../models/categoryModel');
 
 module.exports.categoryCreate = async function (req, res, next) {

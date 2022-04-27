@@ -1,4 +1,3 @@
-const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const Model = require('../models/usersModel');
@@ -8,7 +7,11 @@ module.exports.login = (req, res, next) => {
   Model.find({ email: req.body.email })
     .exec()
     .then((user) => {
-      //bcrypt password
+      if (user.length < 1) {
+        return res.status(401).json({
+          msg: 'user no exit',
+        });
+      }
       bcrypt.compare(req.body.password, user[0].password, (err, result) => {
         if (!result) {
           return res.status(401).json({

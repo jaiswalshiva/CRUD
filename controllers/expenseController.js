@@ -1,6 +1,3 @@
-var emailvalidator = require('email-validator');
-const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt');
 const Model = require('../models/expenseModel');
 
 // it is use the create or add a new data in the Databs
