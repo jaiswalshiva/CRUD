@@ -1,11 +1,12 @@
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
+const emailvalidator = require('email-validator');
 const Model = require('../models/usersModel');
 const jwt = require('jsonwebtoken');
 // user login
-module.exports.login = (req, res, next) => {
-  Model.find({ email: req.body.email })
+module.exports.login = async (req, res, next) => {
+  await Model.find({ email: req.body.email })
     .exec()
     .then((user) => {
       //bcrypt password
