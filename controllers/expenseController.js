@@ -10,12 +10,10 @@ module.exports.create = async function (req, res, next) {
   let data;
   if (req.headers && req.headers.authorization) {
     const authorization = req.headers.authorization.split(' ')[1];
-    Model.find({ token: authorization })
-    .exec()
-    .then((user) => {
-      userID=user[0]._id;
-    
-    console.log(userID)
+   // console.log(authorization);
+    tokenModel.findOne({token: authorization}, function(err, user1){
+      if(err)return handleErr(err);
+  
 
    
    data = new Model({
@@ -23,7 +21,7 @@ module.exports.create = async function (req, res, next) {
     amount: req.body.amount,
     description: req.body.description,
     date: req.body.date,
-    userID:user[0]._id,
+    userID:user1.userID,
   });
   try {
     const dataToSave =  data.save();
@@ -41,13 +39,39 @@ module.exports.create = async function (req, res, next) {
 };
 
 module.exports.expenseOne = async function (req, res, next) {
+  let userID;
+    if (req.headers && req.headers.authorization) {
+      const authorization = req.headers.authorization.split(' ')[1];
+      tokenModel.findOne({token: authorization}, function(err, user1){
+        if(err)return handleErr(err);
+        userID=user1.userID;
+
+        Model.find({ userID: user1.userID })
+        .exec()
+        .then((user) => {
+          //bcrypt password
+          if(user.length<1){
+            return res.status(401).json({
+                msg:'user no exit'
+            })
+        }
   try {
-    const data = await Model.findById(req.params.id);
-    res.json(data);
+
+  
+ 
+      res.status(200).json(user); // "Some User token"
+  
+    
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+})
+})
+    
+}
+
 };
+
 module.exports.expenseAll = async function (req, res, next) {
   //   router.get('/getAll', async (req, res) => {
   try {
@@ -82,15 +106,3 @@ module.exports.expenseUpdate = async function (req, res, next) {
     res.status(400).json({ message: error.message });
   }
 };
-exports.me = function(req,res){
-  if (req.headers && req.headers.authorization) {
-      const authorization = req.headers.authorization.split(' ')[1];
-      Model.find({ token: authorization })
-      .exec()
-      .then((user) => {
-console.log(user[0]._id);
-      })
-      
-  }
-
-}
