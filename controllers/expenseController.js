@@ -3,6 +3,8 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const Model = require('../models/expenseModel');
 const tokenModel = require('../models/tokenModel');
+const expense = require('../models/expenseModel');
+
 
 // it is use the create or add a new data in the Databs
 module.exports.create = async function (req, res, next) {
@@ -75,7 +77,7 @@ module.exports.expenseOne = async function (req, res, next) {
 module.exports.expenseAll = async function (req, res, next) {
   //   router.get('/getAll', async (req, res) => {
   try {
-    const data = await Model.find();
+    const data = await tokenModel.find();
     res.json(data);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -84,10 +86,40 @@ module.exports.expenseAll = async function (req, res, next) {
 //delete expense if you entered wrong
 
 module.exports.expensedelete = async function (req, res, next) {
+
   try {
+    let userId;
     const id = req.params.id;
-    const data = await Model.findByIdAndDelete(id);
-    res.send(`Document with ${data.name} has been deleted..`);
+    if (req.headers && req.headers.authorization) {
+      const authorization = req.headers.authorization.split(' ')[1];
+     // console.log(authorization);
+      tokenModel.findOne({token: authorization}, function(err, user1){
+        if(err)return handleErr(err);
+         userId=user1.userID;
+      
+       
+        expense.findOne({userID: userId}, function(err, user2){
+          if(err)return handleErr(err);
+          userId=user2._id;
+          // console.log(userId)
+          // console.log(id)
+          if(userId==id){
+          
+            async function asyncCall(){
+            const data  =await  expense.findByIdAndDelete(req.params.id);
+            res.send(`Document with ${data.name} has been deleted..`);
+                  }
+                  asyncCall()
+            }
+            
+        })
+      })
+    }
+    
+    
+   
+    
+   
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -98,10 +130,34 @@ module.exports.expenseUpdate = async function (req, res, next) {
     const id = req.params.id;
     const updatedData = req.body;
     const options = { new: true };
-
-    const result = await Model.findByIdAndUpdate(id, updatedData, options);
-
+    let userId;
+    if (req.headers && req.headers.authorization) {
+      const authorization = req.headers.authorization.split(' ')[1];
+     // console.log(authorization);
+      tokenModel.findOne({token: authorization}, function(err, user1){
+        if(err)return handleErr(err);
+         userId=user1.userID;
+      
+       
+        expense.findOne({userID: userId}, function(err, user2){
+          if(err)return handleErr(err);
+          userId=user2._id;
+          // console.log(userId)
+          // console.log(id)
+          if(userId==id){
+          
+            async function asyncCall(){
+              const result = await expense.findByIdAndUpdate(id, updatedData, options);
+            
     res.send(result);
+                  }
+                  asyncCall()
+            }
+            
+        })
+      })
+    }
+   
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
