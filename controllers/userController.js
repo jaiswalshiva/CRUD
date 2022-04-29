@@ -1,17 +1,19 @@
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const Model = require('../models/usersModel');
+const emailvalidator = require('email-validator');
+const sendEmail = require('../services/email');
 // const Model = require('../models/expenseModel');
 
 // it is use the create or add a new data in the Databse
 module.exports.create = async function (req, res, next) {
+  const email = req.body.email;
   const newpassword = req.body.password;
   const data = new Model({
     name: req.body.name,
     email: req.body.email,
     password: await bcrypt.hash(newpassword, 10),
   });
-  // console.log(data);
   try {
     if (!emailvalidator.validate(req.body.email)) {
       // Your call to model here
@@ -27,7 +29,17 @@ module.exports.create = async function (req, res, next) {
     }
 
     const dataToSave = await data.save();
-    // console.log(dataToSave);
+
+    // sending Email
+
+    if (dataToSave) {
+      await sendEmail({
+        email,
+        subject: 'registered',
+        message: 'Congratulations you are Registered',
+      });
+    }
+
     res.status(200).json(dataToSave);
   } catch (error) {
     res.status(400).json({ message: error.message });
