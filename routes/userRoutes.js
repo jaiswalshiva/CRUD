@@ -12,4 +12,7 @@ router.patch('/edit/:id', userController.edit);
 router.get('/getAll', userController.getAll);
 router.get('/getOne/:id', userController.getOne);
 
+router.post('/forgotpassword/', userController.forgotPassword);
+router.post('/resetpassword/:email', userController.resetPassword);
+
 module.exports = router; // export to use in server.js

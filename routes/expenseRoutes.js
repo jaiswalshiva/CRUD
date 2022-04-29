@@ -8,7 +8,6 @@ router.get('/expenseOne', expenseController.expenseOne);
 router.get('/expenseAll', expenseController.expenseAll);
 router.delete('/expensedelete/:id', expenseController.expensedelete);
 router.patch('/expenseUpdate/:id', expenseController.expenseUpdate);
-
-
+router.get('/expence', expenseController.me);
 
 module.exports = router;

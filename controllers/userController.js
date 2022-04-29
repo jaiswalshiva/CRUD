@@ -8,11 +8,11 @@ const sendEmail = require('../services/email');
 // it is use the create or add a new data in the Databse
 module.exports.create = async function (req, res, next) {
   const email = req.body.email;
-  const newpassword = req.body.password;
+  const password = req.body.password;
   const data = new Model({
     name: req.body.name,
     email: req.body.email,
-    password: await bcrypt.hash(newpassword, 10),
+    password: await bcrypt.hash(password, 10),
   });
   try {
     if (!emailvalidator.validate(req.body.email)) {
@@ -87,5 +87,47 @@ module.exports.delete = async function (req, res, next) {
     res.send(`Document with ${data.name} has been deleted..`);
   } catch (error) {
     res.status(400).json({ message: error.message });
+  }
+};
+
+exports.forgotPassword = async (req, res) => {
+  const email = req.body.email;
+  const data = await Model.findOne({ email });
+  if (data) {
+    const resetUrl = `http://127.0.0.1:3000/api/resetpassword/${email}`;
+    await sendEmail({
+      email,
+      subject: 'Reset password',
+      message: `please click the link ${resetUrl} for reset your password.Otherwise ignore this email`,
+    });
+  }
+  res.status(200).json({
+    message: 'Email has been send for reset your password',
+  });
+};
+
+exports.resetPassword = async (req, res) => {
+  const email = req.params;
+  if (req.body.newpassword === req.body.confirmpassword) {
+    const data = await Model.findOneAndUpdate(email, {
+      password: req.body.newpassword,
+    });
+    console.log(data);
+    // if (data) {
+    //   const pass = await bcrypt.hash(req.body.newpassword, 10);
+    //   data.password = pass;
+    //   await Model.save();
+    //   res.status(200).json({
+    //     message: 'Password has been changed',
+    //   });
+    // } else {
+    //   res.status(200).json({
+    //     message: 'invalid user',
+    //   });
+    // }
+  } else {
+    res.status(200).json({
+      message: 'Password does not match',
+    });
   }
 };
