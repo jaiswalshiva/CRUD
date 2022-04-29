@@ -1,4 +1,4 @@
-var emailvalidator = require('email-validator');
+const emailvalidator = require('email-validator');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const Model = require('../models/expenseModel');
