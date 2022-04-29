@@ -2,6 +2,8 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const Model = require('../models/usersModel');
+const tokenModel = require('../models/tokenModel');
+
 const jwt = require('jsonwebtoken');
 // user login
 module.exports.login = (req, res, next) => {
@@ -9,6 +11,11 @@ module.exports.login = (req, res, next) => {
     .exec()
     .then((user) => {
       //bcrypt password
+      if(user.length<1){
+        return res.status(401).json({
+            msg:'user no exit'
+        })
+    }
       bcrypt.compare(req.body.password, user[0].password, (err, result) => {
         if (!result) {
           return res.status(401).json({
@@ -30,6 +37,27 @@ module.exports.login = (req, res, next) => {
               expiresIn: '24h',
             }
           );
+          tokenModel.findOne({email: req.body.email}, function(err, user1){
+            if(err)return handleErr(err);
+            if(user1==null){
+              const data = new tokenModel({
+                userID: user[0]._id,
+                token: token,
+                email:user[0].email
+              })
+               data.save();
+          }
+          else{
+            user1.token = token;
+            user1.save(function(err){
+               if(err)return handleErr(err);
+               //user has been updated
+             });
+            }
+           });
+        
+          
+    
           //final response
           res.status(200).json({
             _id: user[0]._id,

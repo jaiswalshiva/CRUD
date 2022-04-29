@@ -2,25 +2,42 @@ var emailvalidator = require('email-validator');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const Model = require('../models/expenseModel');
+const tokenModel = require('../models/tokenModel');
 
 // it is use the create or add a new data in the Databs
 module.exports.create = async function (req, res, next) {
-  const data = new Model({
+  let userID;
+  let data;
+  if (req.headers && req.headers.authorization) {
+    const authorization = req.headers.authorization.split(' ')[1];
+    Model.find({ token: authorization })
+    .exec()
+    .then((user) => {
+      userID=user[0]._id;
+    
+    console.log(userID)
+
+   
+   data = new Model({
     name: req.body.name,
     amount: req.body.amount,
     description: req.body.description,
     date: req.body.date,
-    userID: req.params.id,
+    userID:user[0]._id,
   });
-  // console.log(data);
-
   try {
-    const dataToSave = await data.save();
-    // console.log(dataToSave);
-    res.status(200).json(dataToSave);
+    const dataToSave =  data.save();
+    dataToSave.then(function(result) {
+      res.status(200).json(result); // "Some User token"
+   })
+    //  console.log(dataToSave);
+    // res.status(200).json(dataToSave);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
+})
+}
+
 };
 
 module.exports.expenseOne = async function (req, res, next) {
@@ -65,3 +82,15 @@ module.exports.expenseUpdate = async function (req, res, next) {
     res.status(400).json({ message: error.message });
   }
 };
+exports.me = function(req,res){
+  if (req.headers && req.headers.authorization) {
+      const authorization = req.headers.authorization.split(' ')[1];
+      Model.find({ token: authorization })
+      .exec()
+      .then((user) => {
+console.log(user[0]._id);
+      })
+      
+  }
+
+}
