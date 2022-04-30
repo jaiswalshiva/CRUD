@@ -31,7 +31,10 @@ module.exports.expenseOne = async function (req, res, next) {
 module.exports.expenseAll = async function (req, res, next) {
   //   router.get('/getAll', async (req, res) => {
   try {
-    const data = await Model.find();
+    const limitValue = req.query.limit || 5;
+    const skipValue = req.query.skip || 0;
+    const data = await Model.find().limit(limitValue).skip(skipValue);
+    // const data = await Model.find();
     res.json(data);
   } catch (error) {
     res.status(500).json({ message: error.message });

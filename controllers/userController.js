@@ -47,7 +47,7 @@ module.exports.getOne = async function (req, res, next) {
 
 // get All the data with the help of id
 module.exports.getAll = async function (req, res, next) {
-  //   router.get('/getAll', async (req, res) => {
+  //   router.get('/getAlgit l', async (req, res) => {
   // write pagination code
   try {
     const limitValue = req.query.limit || 5;
