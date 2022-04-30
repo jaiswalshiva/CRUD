@@ -1,5 +1,7 @@
+const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
-
+const emailvalidator = require('email-validator');
+const validator = require('validator');
 const Model = require('../models/usersModel');
 // const Model = require('../models/expenseModel');
 
@@ -18,8 +20,10 @@ module.exports.create = async function (req, res, next) {
       // Your call to model here
       res.status(400).send('Invalid Email');
     }
-    if (req.body.password !== req.body.password2) {
-      return res.status(400).send('Passwords dont match');
+    if (req.body.password !== req.body.confirmPassword) {
+      return res
+        .status(400)
+        .send('Passwords dont match or confirmPassword is not use');
     }
     let user = await Model.findOne({ email: req.body.email });
     if (user) return res.status(400).json('User already registered.');
@@ -44,8 +48,12 @@ module.exports.getOne = async function (req, res, next) {
 // get All the data with the help of id
 module.exports.getAll = async function (req, res, next) {
   //   router.get('/getAll', async (req, res) => {
+  // write pagination code
   try {
-    const data = await Model.find();
+    const limitValue = req.query.limit || 5;
+    const skipValue = req.query.skip || 0;
+    const data = await Model.find().limit(limitValue).skip(skipValue);
+    // const data = await Model.find();
     res.json(data);
   } catch (error) {
     res.status(500).json({ message: error.message });
