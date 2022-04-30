@@ -94,11 +94,11 @@ exports.forgotPassword = async (req, res) => {
   const email = req.body.email;
   const data = await Model.findOne({ email });
   if (data) {
-    const resetUrl = `http://127.0.0.1:3000/api/resetpassword/${email}`;
+    const resetUrl = `http://127.0.0.1:3000/api/resetpassword/${data._id}`;
     await sendEmail({
       email,
       subject: 'Reset password',
-      message: `please click the link ${resetUrl} for reset your password.Otherwise ignore this email`,
+      message: `please click on the link ${resetUrl} for reset your password.Otherwise ignore this email`,
     });
   }
   res.status(200).json({
@@ -106,28 +106,38 @@ exports.forgotPassword = async (req, res) => {
   });
 };
 
-exports.resetPassword = async (req, res) => {
-  const email = req.params;
-  if (req.body.newpassword === req.body.confirmpassword) {
-    const data = await Model.findOneAndUpdate(email, {
-      password: req.body.newpassword,
-    });
-    console.log(data);
-    // if (data) {
-    //   const pass = await bcrypt.hash(req.body.newpassword, 10);
-    //   data.password = pass;
-    //   await Model.save();
-    //   res.status(200).json({
-    //     message: 'Password has been changed',
-    //   });
-    // } else {
-    //   res.status(200).json({
-    //     message: 'invalid user',
-    //   });
-    // }
-  } else {
-    res.status(200).json({
-      message: 'Password does not match',
-    });
+exports.resetPassword = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const doc = await Model.findById(id);
+    if (req.body.newpassword === req.body.confirmpassword) {
+      const password = await bcrypt.hash(req.body.newpassword, 10);
+      const data = await Model.updateOne(
+        { _id: id },
+        { $set: { password } },
+        { new: true }
+      );
+      if (data) {
+        await sendEmail({
+          email: doc.email,
+          subject: 'Password Change',
+          message: `Congratulations Your password Sucessfully Change`,
+        });
+        res.status(200).json({
+          message: 'Congratulations Your password Sucessfully Change',
+        });
+      } else {
+        res.status(200).json({
+          message: 'invalid user',
+        });
+      }
+    } else {
+      res.status(200).json({
+        message: 'Password does not match',
+      });
+    }
+  } catch (err) {
+    console.log(err.message);
+    next();
   }
 };

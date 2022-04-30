@@ -36,43 +36,33 @@ module.exports.create = async function (req, res, next) {
         }
       });
   }
-})
-}
-
 };
 
 module.exports.expenseOne = async function (req, res, next) {
   let userID;
-    if (req.headers && req.headers.authorization) {
-      const authorization = req.headers.authorization.split(' ')[1];
-      tokenModel.findOne({token: authorization}, function(err, user1){
-        if(err)return handleErr(err);
-        userID=user1.userID;
+  if (req.headers && req.headers.authorization) {
+    const authorization = req.headers.authorization.split(' ')[1];
+    tokenModel.findOne({ token: authorization }, function (err, user1) {
+      if (err) return handleErr(err);
+      userID = user1.userID;
 
-        Model.find({ userID: user1.userID })
+      Model.find({ userID: user1.userID })
         .exec()
         .then((user) => {
           //bcrypt password
-          if(user.length<1){
+          if (user.length < 1) {
             return res.status(401).json({
-                msg:'user no exit'
-            })
-        }
-  try {
-
-  
- 
-      res.status(200).json(user); // "Some User token"
-  
-    
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+              msg: 'user no exit',
+            });
+          }
+          try {
+            res.status(200).json(user); // "Some User token"
+          } catch (error) {
+            res.status(500).json({ message: error.message });
+          }
+        });
+    });
   }
-})
-})
-    
-}
-
 };
 
 module.exports.expenseAll = async function (req, res, next) {
@@ -87,40 +77,31 @@ module.exports.expenseAll = async function (req, res, next) {
 //delete expense if you entered wrong
 
 module.exports.expensedelete = async function (req, res, next) {
-
   try {
     let userId;
     const id = req.params.id;
     if (req.headers && req.headers.authorization) {
       const authorization = req.headers.authorization.split(' ')[1];
-     // console.log(authorization);
-      tokenModel.findOne({token: authorization}, function(err, user1){
-        if(err)return handleErr(err);
-         userId=user1.userID;
-      
-       
-        expense.findOne({userID: userId}, function(err, user2){
-          if(err)return handleErr(err);
-          userId=user2._id;
+      // console.log(authorization);
+      tokenModel.findOne({ token: authorization }, function (err, user1) {
+        if (err) return handleErr(err);
+        userId = user1.userID;
+
+        expense.findOne({ userID: userId }, function (err, user2) {
+          if (err) return handleErr(err);
+          userId = user2._id;
           // console.log(userId)
           // console.log(id)
-          if(userId==id){
-          
-            async function asyncCall(){
-            const data  =await  expense.findByIdAndDelete(req.params.id);
-            res.send(`Document with ${data.name} has been deleted..`);
-                  }
-                  asyncCall()
+          if (userId == id) {
+            async function asyncCall() {
+              const data = await expense.findByIdAndDelete(req.params.id);
+              res.send(`Document with ${data.name} has been deleted..`);
             }
-            
-        })
-      })
+            asyncCall();
+          }
+        });
+      });
     }
-    
-    
-   
-    
-   
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -134,31 +115,31 @@ module.exports.expenseUpdate = async function (req, res, next) {
     let userId;
     if (req.headers && req.headers.authorization) {
       const authorization = req.headers.authorization.split(' ')[1];
-     // console.log(authorization);
-      tokenModel.findOne({token: authorization}, function(err, user1){
-        if(err)return handleErr(err);
-         userId=user1.userID;
-      
-       
-        expense.findOne({userID: userId}, function(err, user2){
-          if(err)return handleErr(err);
-          userId=user2._id;
+      // console.log(authorization);
+      tokenModel.findOne({ token: authorization }, function (err, user1) {
+        if (err) return handleErr(err);
+        userId = user1.userID;
+
+        expense.findOne({ userID: userId }, function (err, user2) {
+          if (err) return handleErr(err);
+          userId = user2._id;
           // console.log(userId)
           // console.log(id)
-          if(userId==id){
-          
-            async function asyncCall(){
-              const result = await expense.findByIdAndUpdate(id, updatedData, options);
-            
-    res.send(result);
-                  }
-                  asyncCall()
+          if (userId == id) {
+            async function asyncCall() {
+              const result = await expense.findByIdAndUpdate(
+                id,
+                updatedData,
+                options
+              );
+
+              res.send(result);
             }
-            
-        })
-      })
+            asyncCall();
+          }
+        });
+      });
     }
-   
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
