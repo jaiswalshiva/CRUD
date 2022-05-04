@@ -24,6 +24,7 @@ module.exports.create = async function (req, res, next) {
     description: req.body.description,
     date: req.body.date,
     userID:user1.userID,
+    category: req.body.category,
   });
   try {
     const dataToSave =  data.save();
@@ -54,7 +55,7 @@ module.exports.expenseOne = async function (req, res, next) {
           //bcrypt password
           if(user.length<1){
             return res.status(401).json({
-                msg:'user no exit'
+                msg:'no expence'
             })
         }
   try {
@@ -77,7 +78,7 @@ module.exports.expenseOne = async function (req, res, next) {
 module.exports.expenseAll = async function (req, res, next) {
   //   router.get('/getAll', async (req, res) => {
   try {
-    const data = await tokenModel.find();
+    const data = await expense.find();
     res.json(data);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -101,15 +102,18 @@ module.exports.expensedelete = async function (req, res, next) {
         expense.findOne({userID: userId}, function(err, user2){
           if(err)return handleErr(err);
           userId=user2._id;
-          // console.log(userId)
-          // console.log(id)
-          if(userId==id){
+          console.log(userId)
+           console.log(id)
+          if(userId.toString()==id){
           
             async function asyncCall(){
             const data  =await  expense.findByIdAndDelete(req.params.id);
             res.send(`Document with ${data.name} has been deleted..`);
                   }
                   asyncCall()
+            }
+            else{
+              res.send(`param or token invalid..`);
             }
             
         })
