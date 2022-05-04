@@ -9,7 +9,7 @@ router.post('/login', authController.login);
 router.post('/create', userController.create);
 router.delete('/delete/:id', userController.delete);
 router.patch('/edit/:id', userController.edit);
-router.get('/getAll', userController.getAll);
+router.get('/getuser', userController.getAll);
 router.get('/getOne/:id', userController.getOne);
 
 module.exports = router; // export to use in server.js

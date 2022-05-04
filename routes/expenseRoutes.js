@@ -9,6 +9,4 @@ router.get('/expenseAll', expenseController.expenseAll);
 router.delete('/expensedelete/:id', expenseController.expensedelete);
 router.patch('/expenseUpdate/:id', expenseController.expenseUpdate);
 
-
-
 module.exports = router;

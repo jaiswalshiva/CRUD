@@ -67,10 +67,19 @@ module.exports.expenseAll = async function (req, res, next) {
   //   router.get('/getAll', async (req, res) => {
   try {
     // const data = await tokenModel.find();
-    const limitValue = req.query.limit || 5;
-    const skipValue = req.query.skip || 0;
-    const data = await Model.find().limit(limitValue).skip(skipValue);
-    res.json(data);
+
+    // pagination
+    Model.paginate({}, { page: req.query.page, limit: req.query.limit })
+      .then((response) => {
+        res.json({ response });
+      })
+      .catch((error) => {
+        res.json({ message: 'An error Ocurred :' + error() });
+      });
+    // const limitValue = req.query.limit || 5;
+    // const skipValue = req.query.skip || 0;
+    // const data = await Model.find().limit(limitValue).skip(skipValue);
+    // res.json(data);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
