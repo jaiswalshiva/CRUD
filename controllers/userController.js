@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const Model = require('../models/usersModel');
 const emailvalidator = require('email-validator');
 const sendEmail = require('../services/email');
-// const Model = require('../models/expenseModel');
+
 const redis = require('redis');
 const redisPort = 6379;
 // it is use the create or add a new data in the Databse
@@ -59,16 +59,12 @@ module.exports.getOne = async function (req, res, next) {
 // get All the data with the help of id
 module.exports.getAll = async function (req, res, next) {
   // const term = `quotes_author_\\${user}_${page}`;
-  // const key = 'req.par';
   // const key = db.scanStream({ count: 5 });
   // console.log(key);
+  // const key = 'constant';
   try {
     // const data = await Model.find();
     // // use redis for caching
-    // const limitValue = req.query.limit || 2;
-    // const skipValue = req.query.skip || 0;
-    // const data = await Model.find().limit(limitValue).skip(skipValue);
-    // res.json(data);
     // const client = redis.createClient(redisPort);
     // await client.connect();
     // const data = await client.get(key);
@@ -77,7 +73,7 @@ module.exports.getAll = async function (req, res, next) {
     // } else {
     //   const data = await Model.find();
     //   await client.set(key, JSON.stringify(data));
-    //   res.send(data);
+    //   return res.status(400).res.send(data);
     // }
     // if (req.query.page && req.query.limit)
     Model.paginate({}, { page: req.query.page, limit: req.query.limit })
