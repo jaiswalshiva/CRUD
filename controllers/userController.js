@@ -5,6 +5,9 @@ const emailvalidator = require('email-validator');
 const sendEmail = require('../services/email');
 const expense = require('../models/expenseModel');
 const tokenModel = require('../models/tokenModel');
+const redis = require('redis');
+const redisPort = 6379;
+
 
 
 // it is use the create or add a new data in the Databse
@@ -60,13 +63,32 @@ module.exports.getOne = async function (req, res, next) {
 // get All the data with the help of id
 module.exports.getAll = async function (req, res, next) {
   //   router.get('/getAll', async (req, res) => {
-  try {
-    const data = await Model.find();
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    const key = 'coodsoooho';
+    try {
+      const client = redis.createClient(redisPort);
+     // console.log(client);
+       client.connect();
+        // const data = await Model.find();
+      // use redis for caching
+      client.expire(key, 10)
+      var val;
+      const data = await client.get(key);
+      if (data) {
+  
+        res.json(JSON.parse(data));
+      } else {
+       
+        Model.paginate({}, { page: req.query.page, limit: req.query.limit })
+     {
+      const data = await Model.find(  ).limit(req.query.limit);
+      //console.log(client);
+      await client.set(key, JSON.stringify(data));
+      return res.json(data);
+      }}
+       } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
   }
-};
 // updated the data
 module.exports.edit = async function (req, res, next) {
   try {

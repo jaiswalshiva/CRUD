@@ -4,7 +4,8 @@ const bcrypt = require('bcrypt');
 const Model = require('../models/expenseModel');
 const tokenModel = require('../models/tokenModel');
 const expense = require('../models/expenseModel');
-
+const redis = require('redis');
+const redisPort = 6379;
 
 // it is use the create or add a new data in the Databs
 module.exports.create = async function (req, res, next) {
@@ -41,49 +42,97 @@ module.exports.create = async function (req, res, next) {
 
 };
 
-module.exports.expenseOne = async function (req, res, next) {
-  let userID;
+module.exports.expenseOne = async function (req, res, next) { 
+  try{   
+      let userID;
     if (req.headers && req.headers.authorization) {
       const authorization = req.headers.authorization.split(' ')[1];
       tokenModel.findOne({token: authorization}, function(err, user1){
         if(err)return handleErr(err);
         userID=user1.userID;
+      
+   const key = userID.toString();
+  
+      
+      const client = redis.createClient(redisPort);
+     // console.log(client);
+       client.connect();
+        // const data = await Model.find();
+      // use redis for caching
+      client.expire(key, 2)
+      var val;
+      const foo = async () => {
 
-        Model.find({ userID: user1.userID })
-        .exec()
-        .then((user) => {
-          //bcrypt password
-          if(user.length<1){
-            return res.status(401).json({
-                msg:'no expence'
-            })
+      const data = await client.get(key);
+      if (data) {
+  
+        res.json(JSON.parse(data));
+      } else {
+       // console.log(userID);
+       
+        expense.paginate({}, { page: req.query.page, limit: req.query.limit })
+     {
+     const data= expense.find({ userID }).limit(req.query.limit)
+
+      .exec()
+      .then((data) => {
+        //bcrypt password
+      
+        const foo1 = async () => {
+        await client.set(key, JSON.stringify(data));
+        return res.json(data);
         }
-  try {
-
-  
- 
-      res.status(200).json(user); // "Some User token"
-  
+        foo1();
+      
+    })
+      
+      //console.log(client);
+      
+      }}
     
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    
+    }
+    foo();
+  })
   }
-})
-})
-    
-}
+       
+    }
+    catch(error){
+      console.log(error)
+    }
 
-};
+  }
+
 
 module.exports.expenseAll = async function (req, res, next) {
   //   router.get('/getAll', async (req, res) => {
-  try {
-    const data = await expense.find();
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    const key = 'coodsoooghffsgoho';
+    try {
+      const client = redis.createClient(redisPort);
+     // console.log(client);
+       client.connect();
+       client.expire(key, 2)
+        // const data = await Model.find();
+      // use redis for caching
+      var val;
+      const data = await client.get(key);
+
+      if (data) {
+  
+        res.json(JSON.parse(data));
+      } else {
+       
+        Model.paginate({}, { page: req.query.page, limit: req.query.limit })
+     {
+      const data = await expense.find(  ).limit(req.query.limit);
+      //console.log(client);
+      await client.set(key, JSON.stringify(data));
+      return res.json(data);
+      }}
+       } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
   }
-};
 //delete expense if you entered wrong
 
 module.exports.expensedelete = async function (req, res, next) {

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const Schema = mongoose.Schema;
+const mongoosePaginate = require('mongoose-paginate-v2');
 
 const userSchema = new Schema(
   {
@@ -26,5 +27,5 @@ const userSchema = new Schema(
     timestamps: true,
   }
 );
-
+userSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model('User', userSchema);
