@@ -50,8 +50,9 @@ module.exports.expenseOne = async function (req, res, next) {
       tokenModel.findOne({token: authorization}, function(err, user1){
         if(err)return handleErr(err);
         userID=user1.userID;
-      
-   const key = userID.toString();
+        const limitValue = req.query.limit || 2;
+        let skipValue = req.query.skip || 0; 
+   const key = userID.toString()+skipValue.toString()+limitValue.toString();
   
       
       const client = redis.createClient(redisPort);
@@ -70,10 +71,12 @@ module.exports.expenseOne = async function (req, res, next) {
       } else {
        // console.log(userID);
        
-        expense.paginate({}, { page: req.query.page, limit: req.query.limit })
+        expense.paginate({}, { skip: req.query.skip, limit: req.query.limit })
      {
-     const data= expense.find({ userID }).limit(req.query.limit)
-
+       
+      skipValue=skipValue*limitValue;
+     
+     const data= expense.find({ userID }).limit(limitValue).skip(skipValue)
       .exec()
       .then((data) => {
         //bcrypt password
@@ -106,7 +109,9 @@ module.exports.expenseOne = async function (req, res, next) {
 
 module.exports.expenseAll = async function (req, res, next) {
   //   router.get('/getAll', async (req, res) => {
-    const key = 'coodsoooghffsgoho';
+    const limitValue = req.query.page || 2;
+        let skipValue = req.query.skip || 0;
+    const key = 'expenseAll'+skipValue.toString()+limitValue.toString();
     try {
       const client = redis.createClient(redisPort);
      // console.log(client);
@@ -122,9 +127,12 @@ module.exports.expenseAll = async function (req, res, next) {
         res.json(JSON.parse(data));
       } else {
        
-        Model.paginate({}, { page: req.query.page, limit: req.query.limit })
+        Model.paginate({}, { page: req.query.skip, limit: req.query.limit })
      {
-      const data = await expense.find(  ).limit(req.query.limit);
+      
+        skipValue=skipValue*limitValue;
+       
+      const data = await expense.find(  ).limit(limitValue).skip(skipValue);
       //console.log(client);
       await client.set(key, JSON.stringify(data));
       return res.json(data);

@@ -63,7 +63,9 @@ module.exports.getOne = async function (req, res, next) {
 // get All the data with the help of id
 module.exports.getAll = async function (req, res, next) {
   //   router.get('/getAll', async (req, res) => {
-    const key = 'coodsoooho';
+    const limitValue = req.query.limit || 2;
+        let skipValue = req.query.skip || 0;
+    const key = 'getAll'+skipValue.toString()+limitValue.toString();
     try {
       const client = redis.createClient(redisPort);
      // console.log(client);
@@ -78,9 +80,12 @@ module.exports.getAll = async function (req, res, next) {
         res.json(JSON.parse(data));
       } else {
        
-        Model.paginate({}, { page: req.query.page, limit: req.query.limit })
+        Model.paginate({}, { page: req.query.skip, limit: req.query.limit })
+
      {
-      const data = await Model.find(  ).limit(req.query.limit);
+       
+      skipValue=skipValue*limitValue;
+      const data = await Model.find(  ).limit(limitValue).skip(skipValue)
       //console.log(client);
       await client.set(key, JSON.stringify(data));
       return res.json(data);
