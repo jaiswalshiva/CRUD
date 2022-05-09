@@ -3,7 +3,10 @@ const bcrypt = require('bcrypt');
 const Model = require('../models/usersModel');
 const emailvalidator = require('email-validator');
 const sendEmail = require('../services/email');
-// const Model = require('../models/expenseModel');
+const expense = require('../models/expenseModel');
+const tokenModel = require('../models/tokenModel');
+const redis = require('redis');
+const redisPort = 6379;
 
 // it is use the create or add a new data in the Databse
 module.exports.create = async function (req, res, next) {
@@ -58,9 +61,31 @@ module.exports.getOne = async function (req, res, next) {
 // get All the data with the help of id
 module.exports.getAll = async function (req, res, next) {
   //   router.get('/getAll', async (req, res) => {
+  const limitValue = req.query.limit || 2;
+  let skipValue = req.query.skip || 0;
+  const key = 'getAll' + skipValue.toString() + limitValue.toString();
   try {
-    const data = await Model.find();
-    res.json(data);
+    const client = redis.createClient(redisPort);
+    // console.log(client);
+    client.connect();
+    // const data = await Model.find();
+    // use redis for caching
+    client.expire(key, 10);
+    var val;
+    const data = await client.get(key);
+    if (data) {
+      res.json(JSON.parse(data));
+    } else {
+      Model.paginate({}, { page: req.query.skip, limit: req.query.limit });
+
+      {
+        skipValue = skipValue * limitValue;
+        const data = await Model.find().limit(limitValue).skip(skipValue);
+        //console.log(client);
+        await client.set(key, JSON.stringify(data));
+        return res.json(data);
+      }
+    }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
