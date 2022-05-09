@@ -11,5 +11,5 @@ router.delete('/delete/:id', userController.delete);
 router.patch('/edit/:id', userController.edit);
 router.get('/getAll', userController.getAll);
 router.get('/getOne/:id', userController.getOne);
-
+router.post('/reset', userController.changePassword);
 module.exports = router; // export to use in server.js
