@@ -6,6 +6,7 @@ const Model = require('../models/categoryModel');
 module.exports.categoryCreate = async function (req, res, next) {
   const data = new Model({
     name: req.body.name,
+    description:req.body.description
   });
   try {
     const dataToSave = await data.save();

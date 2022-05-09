@@ -24,6 +24,8 @@ database.once('connected', () => {
   console.log('Database Connected');
 });
 
-app.listen(3000, () => {
+let server=app.listen(3000, () => {
   console.log(`Server Started at ${3000}`);
 });
+module.exports = server
+

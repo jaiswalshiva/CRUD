@@ -3,6 +3,10 @@ const bcrypt = require('bcrypt');
 const Model = require('../models/usersModel');
 const emailvalidator = require('email-validator');
 const sendEmail = require('../services/email');
+const expense = require('../models/expenseModel');
+const tokenModel = require('../models/tokenModel');
+const redis = require('redis');
+const redisPort = 6379;
 
 const redis = require('redis');
 const redisPort = 6379;
@@ -58,31 +62,32 @@ module.exports.getOne = async function (req, res, next) {
 
 // get All the data with the help of id
 module.exports.getAll = async function (req, res, next) {
-  // const term = `quotes_author_\\${user}_${page}`;
-  // const key = db.scanStream({ count: 5 });
-  // console.log(key);
-  // const key = 'constant';
+  //   router.get('/getAll', async (req, res) => {
+  const limitValue = req.query.limit || 2;
+  let skipValue = req.query.skip || 0;
+  const key = 'getAll' + skipValue.toString() + limitValue.toString();
   try {
+    const client = redis.createClient(redisPort);
+    // console.log(client);
+    client.connect();
     // const data = await Model.find();
-    // // use redis for caching
-    // const client = redis.createClient(redisPort);
-    // await client.connect();
-    // const data = await client.get(key);
-    // if (data) {
-    //   res.send(JSON.parse(data));
-    // } else {
-    //   const data = await Model.find();
-    //   await client.set(key, JSON.stringify(data));
-    //   return res.status(400).res.send(data);
-    // }
-    // if (req.query.page && req.query.limit)
-    Model.paginate({}, { page: req.query.page, limit: req.query.limit })
-      .then((response) => {
-        res.json({ response });
-      })
-      .catch((error) => {
-        res.json({ message: error.message });
-      });
+    // use redis for caching
+    client.expire(key, 10);
+    var val;
+    const data = await client.get(key);
+    if (data) {
+      res.json(JSON.parse(data));
+    } else {
+      Model.paginate({}, { page: req.query.skip, limit: req.query.limit });
+
+      {
+        skipValue = skipValue * limitValue;
+        const data = await Model.find().limit(limitValue).skip(skipValue);
+        //console.log(client);
+        await client.set(key, JSON.stringify(data));
+        return res.json(data);
+      }
+    }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -108,6 +113,69 @@ module.exports.delete = async function (req, res, next) {
     const id = req.params.id;
     const data = await Model.findByIdAndDelete(id);
     res.send(`Document with ${data.name} has been deleted..`);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+module.exports.changePassword = async function (req, res, next) {
+  try {
+    const email = req.body.email;
+    let password = req.body.password;
+    let tokemEmailId;
+    let tokemPassword;
+    let newpassword = req.body.newpassword;
+    const options = { new: true };
+
+    const incryptPassword = await bcrypt.hash(req.body.newpassword, 10);
+    const updatedData = { password: incryptPassword };
+    if (req.headers && req.headers.authorization) {
+      const authorization = req.headers.authorization.split(' ')[1];
+      // console.log(authorization);
+      tokenModel.findOne({ token: authorization }, function (err, user1) {
+        if (err) return handleErr(err);
+        tokemEmailId = user1.email;
+
+        //  console.log(tokemEmailId)
+        //  console.log(email)
+
+        if (tokemEmailId == email) {
+          Model.findOne({ email: email }, function (err, user2) {
+            if (err) return handleErr(err);
+            //console.log(user2.password);
+            tokemPassword = user2.password;
+            const id = user2._id;
+            //console.log(id)
+            bcrypt.compare(req.body.password, tokemPassword, (err, result) => {
+              if (!result) {
+                return res.status(401).json({
+                  msg: 'password matching failed',
+                });
+              } else {
+                user2.password = incryptPassword;
+                const asyncCall = async function () {
+                  const result = await Model.findByIdAndUpdate(
+                    id,
+                    updatedData,
+                    options
+                  );
+                };
+
+                asyncCall();
+
+                console.log(user2.password);
+                return res.status(401).json({
+                  msg: 'password changed',
+                });
+              }
+            });
+          });
+        } else {
+          return res.status(401).json({
+            msg: 'wrong email id',
+          });
+        }
+      });
+    }
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
