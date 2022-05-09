@@ -24,8 +24,8 @@ module.exports.create = async function (req, res, next) {
     }
     let user = await Model.findOne({ email: req.body.email });
     if (user) return res.status(400).json('User already registered.');
-    if (req.body.password.length < 8) {
-      return res.status(400).json('password must be.');
+    if (req.body.password.length < 6) {
+      return res.status(400).json('password must be greater then 6');
     }
 
     const dataToSave = await data.save();
@@ -90,9 +90,11 @@ module.exports.delete = async function (req, res, next) {
   }
 };
 
+// Sending forget password email link
 exports.forgotPassword = async (req, res) => {
   const email = req.body.email;
   const data = await Model.findOne({ email });
+  console.log(data);
   if (data) {
     const resetUrl = `http://127.0.0.1:3000/api/resetpassword/${data._id}`;
     await sendEmail({
@@ -100,12 +102,17 @@ exports.forgotPassword = async (req, res) => {
       subject: 'Reset password',
       message: `please click on the link ${resetUrl} for reset your password.Otherwise ignore this email`,
     });
+    res.status(200).json({
+      message: 'Email has been send for reset your password',
+    });
+  } else {
+    res.status(400).json({
+      message: 'Email Does not exist',
+    });
   }
-  res.status(200).json({
-    message: 'Email has been send for reset your password',
-  });
 };
 
+// Reset password by the link
 exports.resetPassword = async (req, res, next) => {
   try {
     const id = req.params.id;
