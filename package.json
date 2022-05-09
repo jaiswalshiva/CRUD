@@ -19,7 +19,7 @@
     "chai-http": "^4.3.0",
     "circular-json": "^0.5.9",
     "dotenv": "^16.0.0",
-    "ejs": "^3.1.6",
+    "ejs": "^3.1.7",
     "email-validator": "^2.0.4",
     "express": "^4.17.3",
     "jsonwebtoken": "^8.5.1",
