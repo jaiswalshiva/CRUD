@@ -13,134 +13,116 @@ module.exports.create = async function (req, res, next) {
   let data;
   if (req.headers && req.headers.authorization) {
     const authorization = req.headers.authorization.split(' ')[1];
-   // console.log(authorization);
-    tokenModel.findOne({token: authorization}, function(err, user1){
-      if(err)return handleErr(err);
-  
+    // console.log(authorization);
+    tokenModel.findOne({ token: authorization }, function (err, user1) {
+      if (err) return handleErr(err);
 
-   
-   data = new Model({
-    name: req.body.name,
-    amount: req.body.amount,
-    description: req.body.description,
-    date: req.body.date,
-    userID:user1.userID,
-    category: req.body.category,
-  });
-  try {
-    const dataToSave =  data.save();
-    dataToSave.then(function(result) {
-      res.status(200).json(result); // "Some User token"
-   })
-    //  console.log(dataToSave);
-    // res.status(200).json(dataToSave);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
+
+
+      data = new Model({
+        name: req.body.name,
+        amount: req.body.amount,
+        description: req.body.description,
+        date: req.body.date,
+        userID: user1.userID,
+        category: req.body.category,
+      });
+      try {
+        const dataToSave = data.save();
+        dataToSave.then(function (result) {
+          res.status(200).json(result); // "Some User token"
+        })
+        //  console.log(dataToSave);
+        // res.status(200).json(dataToSave);
+      } catch (error) {
+        res.status(400).json({ message: error.message });
+      }
+    })
   }
-})
-}
 
 };
 
-module.exports.expenseOne = async function (req, res, next) { 
-  try{   
-      let userID;
+module.exports.expenseOne = async function (req, res, next) {
+  try {
+    let userID;
     if (req.headers && req.headers.authorization) {
       const authorization = req.headers.authorization.split(' ')[1];
-      tokenModel.findOne({token: authorization}, function(err, user1){
-        if(err)return handleErr(err);
-        userID=user1.userID;
+      tokenModel.findOne({ token: authorization }, function (err, user1) {
+        if (err) return handleErr(err);
+        userID = user1.userID;
         const limitValue = req.query.limit || 2;
-        let skipValue = req.query.skip || 0; 
-   const key = userID.toString()+skipValue.toString()+limitValue.toString();
-  
-      
-      const client = redis.createClient(redisPort);
-     // console.log(client);
-       client.connect();
+        let skipValue = req.query.skip || 0;
+        const key = userID.toString() + skipValue.toString() + limitValue.toString();
+
+
+        const client = redis.createClient(redisPort);
+        // console.log(client);
+        client.connect();
         // const data = await Model.find();
-      // use redis for caching
-      client.expire(key, 2)
-      var val;
-      const foo = async () => {
+        // use redis for caching
+        client.expire(key, 60000)
 
-      const data = await client.get(key);
-      if (data) {
-  
-        res.json(JSON.parse(data));
-      } else {
-       // console.log(userID);
-       
-        expense.paginate({}, { skip: req.query.skip, limit: req.query.limit })
-     {
-       
-      skipValue=skipValue*limitValue;
-     
-     const data= expense.find({ userID }).limit(limitValue).skip(skipValue)
-      .exec()
-      .then((data) => {
-        //bcrypt password
-      
-        const foo1 = async () => {
-        await client.set(key, JSON.stringify(data));
-        return res.json(data);
+        const data = await client.get(key);
+        if (data) {
+
+          res.json(JSON.parse(data));
+        } else {
+          {
+
+            skipValue = skipValue * limitValue;
+
+            expense.find({ userID }).limit(limitValue).skip(skipValue)
+              .exec()
+              .then(async (data) => {
+                //bcrypt password
+                await client.set(key, JSON.stringify(data));
+                return res.json(data);
+
+              })
+
+
+
+          }
+
+
         }
-        foo1();
-      
-    })
-      
-      //console.log(client);
-      
-      }}
-    
-    
-    }
-    foo();
-  })
-  }
-       
-    }
-    catch(error){
-      console.log(error)
+      })
     }
 
   }
+  catch (error) {
+    console.log(error)
+  }
+
+}
 
 
 module.exports.expenseAll = async function (req, res, next) {
   //   router.get('/getAll', async (req, res) => {
-    const limitValue = req.query.page || 2;
-        let skipValue = req.query.skip || 0;
-    const key = 'expenseAll'+skipValue.toString()+limitValue.toString();
-    try {
-      const client = redis.createClient(redisPort);
-     // console.log(client);
-       client.connect();
-       client.expire(key, 2)
-        // const data = await Model.find();
-      // use redis for caching
-      var val;
-      const data = await client.get(key);
+  const limitValue = req.query.page || 2;
+  let skipValue = req.query.skip || 0;
+  const key = 'expenseAll' + skipValue.toString() + limitValue.toString();
+  try {
+    const client = redis.createClient(redisPort);
+    // console.log(client);
+    client.connect();
+    client.expire(key, 2)
+    // const data = await Model.find();
+    // use redis for caching
+    const data = await client.get(key);
 
-      if (data) {
-  
-        res.json(JSON.parse(data));
-      } else {
-       
-        Model.paginate({}, { page: req.query.skip, limit: req.query.limit })
-     {
-      
-        skipValue=skipValue*limitValue;
-       
-      const data = await expense.find(  ).limit(limitValue).skip(skipValue);
-      //console.log(client);
-      await client.set(key, JSON.stringify(data));
-      return res.json(data);
-      }}
-       } catch (error) {
-      res.status(500).json({ message: error.message });
+    if (data) {
+      res.json(JSON.parse(data));
+    } else {
+        skipValue = skipValue * limitValue;
+        const data = await expense.find().limit(limitValue).skip(skipValue);
+        await client.set(key, JSON.stringify(data));
+        return res.json(data);
     }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
+}
 //delete expense if you entered wrong
 
 module.exports.expensedelete = async function (req, res, next) {
