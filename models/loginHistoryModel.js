@@ -1,6 +1,4 @@
-const mongoose = require('mongoose');
-
-const Schema = mongoose.Schema;
+const { Schema, mongoose } = require('mongoose');
 
 const loginHistory = new Schema(
   {
