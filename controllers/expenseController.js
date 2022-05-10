@@ -1,6 +1,3 @@
-const emailvalidator = require('email-validator');
-const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt');
 const Model = require('../models/expenseModel');
 const tokenModel = require('../models/tokenModel');
 const expense = require('../models/expenseModel');
@@ -17,8 +14,6 @@ module.exports.create = async function (req, res, next) {
     tokenModel.findOne({ token: authorization }, function (err, user1) {
       if (err) return handleErr(err);
 
-
-
       data = new Model({
         name: req.body.name,
         amount: req.body.amount,
@@ -31,15 +26,14 @@ module.exports.create = async function (req, res, next) {
         const dataToSave = data.save();
         dataToSave.then(function (result) {
           res.status(200).json(result); // "Some User token"
-        })
+        });
         //  console.log(dataToSave);
         // res.status(200).json(dataToSave);
       } catch (error) {
         res.status(400).json({ message: error.message });
       }
-    })
+    });
   }
-
 };
 
 module.exports.expenseOne = async function (req, res, next) {
@@ -52,50 +46,41 @@ module.exports.expenseOne = async function (req, res, next) {
         userID = user1.userID;
         const limitValue = req.query.limit || 2;
         let skipValue = req.query.skip || 0;
-        const key = userID.toString() + skipValue.toString() + limitValue.toString();
-
+        const key =
+          userID.toString() + skipValue.toString() + limitValue.toString();
 
         const client = redis.createClient(redisPort);
         // console.log(client);
         client.connect();
         // const data = await Model.find();
         // use redis for caching
-        client.expire(key, 60000)
+        client.expire(key, 60000);
 
-        const data = await client.get(key);
+        // const data = await client.get(key);
         if (data) {
-
           res.json(JSON.parse(data));
         } else {
           {
-
             skipValue = skipValue * limitValue;
 
-            expense.find({ userID }).limit(limitValue).skip(skipValue)
+            expense
+              .find({ userID })
+              .limit(limitValue)
+              .skip(skipValue)
               .exec()
               .then(async (data) => {
                 //bcrypt password
                 await client.set(key, JSON.stringify(data));
                 return res.json(data);
-
-              })
-
-
-
+              });
           }
-
-
         }
-      })
+      });
     }
-
+  } catch (error) {
+    console.log(error);
   }
-  catch (error) {
-    console.log(error)
-  }
-
-}
-
+};
 
 module.exports.expenseAll = async function (req, res, next) {
   //   router.get('/getAll', async (req, res) => {
@@ -106,7 +91,7 @@ module.exports.expenseAll = async function (req, res, next) {
     const client = redis.createClient(redisPort);
     // console.log(client);
     client.connect();
-    client.expire(key, 2)
+    client.expire(key, 2);
     // const data = await Model.find();
     // use redis for caching
     const data = await client.get(key);
@@ -114,15 +99,15 @@ module.exports.expenseAll = async function (req, res, next) {
     if (data) {
       res.json(JSON.parse(data));
     } else {
-        skipValue = skipValue * limitValue;
-        const data = await expense.find().limit(limitValue).skip(skipValue);
-        await client.set(key, JSON.stringify(data));
-        return res.json(data);
+      skipValue = skipValue * limitValue;
+      const data = await expense.find().limit(limitValue).skip(skipValue);
+      await client.set(key, JSON.stringify(data));
+      return res.json(data);
     }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-}
+};
 //delete expense if you entered wrong
 
 module.exports.expensedelete = async function (req, res, next) {
@@ -131,31 +116,27 @@ module.exports.expensedelete = async function (req, res, next) {
     const id = req.params.id;
     if (req.headers && req.headers.authorization) {
       const authorization = req.headers.authorization.split(' ')[1];
-     // console.log(authorization);
-      tokenModel.findOne({token: authorization}, function(err, user1){
-        if(err)return handleErr(err);
-         userId=user1.userID;
-      
-       
-        expense.findOne({userID: userId}, function(err, user2){
-          if(err)return handleErr(err);
-          userId=user2._id;
-          console.log(userId)
-           console.log(id)
-          if(userId.toString()==id){
-          
-            async function asyncCall(){
-            const data  =await  expense.findByIdAndDelete(req.params.id);
-            res.send(`Document with ${data.name} has been deleted..`);
-                  }
-                  asyncCall()
+      // console.log(authorization);
+      tokenModel.findOne({ token: authorization }, function (err, user1) {
+        if (err) return handleErr(err);
+        userId = user1.userID;
+
+        expense.findOne({ userID: userId }, function (err, user2) {
+          if (err) return handleErr(err);
+          userId = user2._id;
+          console.log(userId);
+          console.log(id);
+          if (userId.toString() == id) {
+            async function asyncCall() {
+              const data = await expense.findByIdAndDelete(req.params.id);
+              res.send(`Document with ${data.name} has been deleted..`);
             }
-            else{
-              res.send(`param or token invalid..`);
-            }
-            
-        })
-      })
+            asyncCall();
+          } else {
+            res.send(`param or token invalid..`);
+          }
+        });
+      });
     }
   } catch (error) {
     res.status(400).json({ message: error.message });

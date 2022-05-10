@@ -8,8 +8,8 @@ const tokenModel = require('../models/tokenModel');
 const redis = require('redis');
 const redisPort = 6379;
 
-const redis = require('redis');
-const redisPort = 6379;
+// const redis = require('redis');
+
 // it is use the create or add a new data in the Databse
 module.exports.create = async function (req, res, next) {
   const email = req.body.email;
@@ -62,7 +62,6 @@ module.exports.getOne = async function (req, res, next) {
 
 // get All the data with the help of id
 module.exports.getAll = async function (req, res, next) {
-  //   router.get('/getAll', async (req, res) => {
   const limitValue = req.query.limit || 2;
   let skipValue = req.query.skip || 0;
   const key = 'getAll' + skipValue.toString() + limitValue.toString();

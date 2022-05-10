@@ -1,12 +1,9 @@
-const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt');
-const emailvalidator = require('email-validator');
 const Model = require('../models/categoryModel');
 
 module.exports.categoryCreate = async function (req, res, next) {
   const data = new Model({
     name: req.body.name,
-    description:req.body.description
+    description: req.body.description,
   });
   try {
     const dataToSave = await data.save();
