@@ -25,13 +25,22 @@ module.exports.categoryAll = async function (req, res, next) {
 
 module.exports.categoryUpdate = async function (req, res, next) {
   try {
+    if (!req.body) {
+      return res.status(400).send({
+        message: 'Data to update can not be empty!',
+      });
+    }
     const id = req.params.id;
-    const updatedData = req.body;
-    const options = { new: true };
-    const result = await Model.findByIdAndUpdate(id, updatedData, options);
-    res.send(result);
+    const data = await Model.findByIdAndUpdate(id, req.body, {
+      useFindAndModify: false,
+    });
+    if (!data) {
+      res.status(404).send({
+        message: `Cannot update model with id=${id}. Maybe model was not found!`,
+      });
+    } else res.send({ message: 'DATA was updated successfully.' });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 

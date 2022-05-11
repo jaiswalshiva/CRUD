@@ -93,15 +93,22 @@ module.exports.getAll = async function (req, res, next) {
 
 module.exports.edit = async function (req, res, next) {
   try {
+    if (!req.body) {
+      return res.status(400).send({
+        message: 'Data to update can not be empty!',
+      });
+    }
     const id = req.params.id;
-    const updatedData = req.body;
-    const options = { new: true };
-
-    const result = await Model.findByIdAndUpdate(id, updatedData, options);
-
-    res.send(result);
+    const data = await Model.findByIdAndUpdate(id, req.body, {
+      useFindAndModify: false,
+    });
+    if (!data) {
+      res.status(404).send({
+        message: `Cannot update model with id=${id}. Maybe model was not found!`,
+      });
+    } else res.send({ message: 'DATA was updated successfully.' });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 //Deleted the data help of id
@@ -134,9 +141,10 @@ module.exports.changePassword = async function (req, res, next) {
 
         //  console.log(tokemEmailId)
         //  console.log(email)
-
+        //somthing change email
+        let eml = { email: email };
         if (tokemEmailId == email) {
-          Model.findOne({ email: email }, function (err, user2) {
+          Model.findOne(eml, function (err, user2) {
             if (err) return handleErr(err);
             //console.log(user2.password);
             tokemPassword = user2.password;
@@ -149,6 +157,7 @@ module.exports.changePassword = async function (req, res, next) {
                 });
               } else {
                 user2.password = incryptPassword;
+                // this function are not working
                 const asyncCall = async function () {
                   const result = await Model.findByIdAndUpdate(
                     id,

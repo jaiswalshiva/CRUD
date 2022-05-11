@@ -28,8 +28,8 @@ module.exports.login = async (req, res, next) => {
               name: user[0].name,
               userType: user[0].userType,
             },
-            'this is dumy text',
-            //expire time
+            Process.env.TOKEN_KEY,
+
             {
               expiresIn: '24h',
             }

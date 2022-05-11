@@ -6,6 +6,7 @@ const redisPort = 6379;
 
 // it is use the create or add a new data in the Databs
 module.exports.create = async function (req, res, next) {
+  // const { name, amount, descriptionption, date, userID, category } = req.body;
   // let userID;
   let data;
   if (req.headers && req.headers.authorization) {
