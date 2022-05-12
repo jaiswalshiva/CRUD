@@ -6,15 +6,12 @@ const redisPort = 6379;
 
 // it is use the create or add a new data in the Databs
 module.exports.create = async function (req, res, next) {
-  // const { name, amount, descriptionption, date, userID, category } = req.body;
-  // let userID;
   let data;
   if (req.headers && req.headers.authorization) {
     const authorization = req.headers.authorization.split(' ')[1];
     // console.log(authorization);
     tokenModel.findOne({ token: authorization }, function (err, user1) {
       if (err) return handleErr(err);
-
       data = new Model({
         name: req.body.name,
         amount: req.body.amount,
@@ -28,8 +25,6 @@ module.exports.create = async function (req, res, next) {
         dataToSave.then(function (result) {
           res.status(200).json(result); // "Some User token"
         });
-        //  console.log(dataToSave);
-        // res.status(200).json(dataToSave);
       } catch (error) {
         res.status(400).json({ message: error.message });
       }
@@ -42,14 +37,13 @@ module.exports.expenseOne = async function (req, res, next) {
     let userID;
     if (req.headers && req.headers.authorization) {
       const authorization = req.headers.authorization.split(' ')[1];
-      tokenModel.findOne({ token: authorization }, function (err, user1) {
+      tokenModel.findOne({ token: authorization }, async function (err, user1) {
         if (err) return handleErr(err);
         userID = user1.userID;
         const limitValue = req.query.limit || 2;
         let skipValue = req.query.skip || 0;
         const key =
           userID.toString() + skipValue.toString() + limitValue.toString();
-
         const client = redis.createClient(redisPort);
         // console.log(client);
         client.connect();
@@ -63,7 +57,6 @@ module.exports.expenseOne = async function (req, res, next) {
         } else {
           {
             skipValue = skipValue * limitValue;
-
             expense
               .find({ userID })
               .limit(limitValue)
@@ -179,5 +172,15 @@ module.exports.expenseUpdate = async function (req, res, next) {
     }
   } catch (error) {
     res.status(400).json({ message: error.message });
+  }
+};
+exports.me = function (req, res) {
+  if (req.headers && req.headers.authorization) {
+    const authorization = req.headers.authorization.split(' ')[1];
+    Model.find({ token: authorization })
+      .exec()
+      .then((user) => {
+        console.log(user[0]._id);
+      });
   }
 };

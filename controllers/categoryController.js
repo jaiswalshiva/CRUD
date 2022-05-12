@@ -13,6 +13,7 @@ module.exports.categoryCreate = async function (req, res, next) {
     res.status(400).json({ message: error.message });
   }
 };
+
 module.exports.categoryAll = async function (req, res, next) {
   //   router.get('/getAll', async (req, res) => {
   try {

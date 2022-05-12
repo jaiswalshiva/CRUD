@@ -25,5 +25,6 @@ const userSchema = new Schema(
     timestamps: true,
   }
 );
+
 userSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model('User', userSchema);
