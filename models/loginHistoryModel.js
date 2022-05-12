@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+const { Schema, mongoose } = require('mongoose');
 
-const loginHistory = new mongoose.Schema(
+const loginHistory = new Schema(
   {
     userID: {
       type: mongoose.Schema.Types.ObjectId,
@@ -18,5 +18,4 @@ const loginHistory = new mongoose.Schema(
     timestamps: true,
   }
 );
-
 module.exports = mongoose.model('userlogin', loginHistory);

@@ -68,6 +68,7 @@ module.exports.getAll = async function (req, res, next) {
       {
         skipValue = skipValue * limitValue;
         const data = await Model.find().limit(limitValue).skip(skipValue);
+        //console.log(client);
         await client.set(key, JSON.stringify(data));
         return res.json(data);
       }
@@ -77,17 +78,25 @@ module.exports.getAll = async function (req, res, next) {
   }
 };
 // updated the data
+
 module.exports.edit = async function (req, res, next) {
   try {
+    if (!req.body) {
+      return res.status(400).send({
+        message: 'Data to update can not be empty!',
+      });
+    }
     const id = req.params.id;
-    const updatedData = req.body;
-    const options = { new: true };
-
-    const result = await Model.findByIdAndUpdate(id, updatedData, options);
-
-    res.send(result);
+    const data = await Model.findByIdAndUpdate(id, req.body, {
+      useFindAndModify: false,
+    });
+    if (!data) {
+      res.status(404).send({
+        message: `Cannot update model with id=${id}. Maybe model was not found!`,
+      });
+    } else res.send({ message: 'DATA was updated successfully.' });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 

@@ -51,7 +51,7 @@ module.exports.expenseOne = async function (req, res, next) {
         // use redis for caching
         client.expire(key, 60000);
 
-        const data = await client.get(key);
+        // const data = await client.get(key);
         if (data) {
           res.json(JSON.parse(data));
         } else {

@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
+const { Schema, mongoose } = require('mongoose');
 const mongoosePaginate = require('mongoose-paginate-v2');
 
-const userExpense = new mongoose.Schema(
+const userExpense = new Schema(
   {
     name: {
       type: String,

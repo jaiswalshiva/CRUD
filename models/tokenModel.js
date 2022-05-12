@@ -1,6 +1,5 @@
-const mongoose = require('mongoose');
-
-const tokens = new mongoose.Schema(
+const { Schema, mongoose } = require('mongoose');
+const tokens = new Schema(
   {
     token: {
       type: String,

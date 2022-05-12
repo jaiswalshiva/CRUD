@@ -82,5 +82,3 @@ module.exports.login = (req, res, next) => {
       );
     });
 };
-
-// user LogOut
