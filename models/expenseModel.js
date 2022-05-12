@@ -1,9 +1,7 @@
 const mongoose = require('mongoose');
 const mongoosePaginate = require('mongoose-paginate-v2');
 
-const Schema = mongoose.Schema;
-
-const userExpense = new Schema(
+const userExpense = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -14,10 +12,6 @@ const userExpense = new Schema(
       required: true,
     },
     description: {
-      type: String,
-      required: true,
-    },
-    date: {
       type: String,
       required: true,
     },

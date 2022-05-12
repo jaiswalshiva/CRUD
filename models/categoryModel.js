@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
-const Schema = mongoose.Schema;
 
-const category = new Schema(
+const category = new mongoose.Schema(
   {
     name: {
       type: String,
