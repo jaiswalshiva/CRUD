@@ -1,18 +1,7 @@
 const mongoose = require('mongoose');
 const mongoosePaginate = require('mongoose-paginate-v2');
 
-// it is use the create or add a new data in the Databs
-module.exports.create = async function (req, res, next) {
-  const data = new Model({
-    name: req.body.name,
-    amount: req.body.amount,
-    description: req.body.description,
-    date: req.body.date,
-    userID: req.params.id,
-  });
-  // console.log(data);
-
-const userExpense = new Schema(
+const userExpense = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -23,10 +12,6 @@ const userExpense = new Schema(
       required: true,
     },
     description: {
-      type: String,
-      required: true,
-    },
-    date: {
       type: String,
       required: true,
     },

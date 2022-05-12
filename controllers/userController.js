@@ -1,10 +1,6 @@
-const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const Model = require('../models/usersModel');
-const emailvalidator = require('email-validator');
 const sendEmail = require('../services/email');
-const expense = require('../models/expenseModel');
-const tokenModel = require('../models/tokenModel');
 const redis = require('redis');
 const redisPort = 6379;
 
@@ -18,18 +14,11 @@ module.exports.create = async function (req, res, next) {
     password: await bcrypt.hash(password, 10),
   });
   try {
-    if (!emailvalidator.validate(req.body.email)) {
-      // Your call to model here
-      res.status(400).send('Invalid Email');
-    }
     if (req.body.password !== req.body.password2) {
       return res.status(400).send('Passwords dont match');
     }
     let user = await Model.findOne({ email: req.body.email });
     if (user) return res.status(400).json('User already registered.');
-    if (req.body.password.length < 6) {
-      return res.status(400).json('password must be greater then 6');
-    }
 
     const dataToSave = await data.save();
 
@@ -48,6 +37,7 @@ module.exports.create = async function (req, res, next) {
     res.status(400).json({ message: error.message });
   }
 };
+
 // get th single data with the help of id
 module.exports.getOne = async function (req, res, next) {
   try {
@@ -60,18 +50,15 @@ module.exports.getOne = async function (req, res, next) {
 
 // get All the data with the help of id
 module.exports.getAll = async function (req, res, next) {
-  //   router.get('/getAll', async (req, res) => {
   const limitValue = req.query.limit || 2;
   let skipValue = req.query.skip || 0;
   const key = 'getAll' + skipValue.toString() + limitValue.toString();
   try {
     const client = redis.createClient(redisPort);
-    // console.log(client);
     client.connect();
     // const data = await Model.find();
     // use redis for caching
     client.expire(key, 10);
-    var val;
     const data = await client.get(key);
     if (data) {
       res.json(JSON.parse(data));
@@ -81,7 +68,6 @@ module.exports.getAll = async function (req, res, next) {
       {
         skipValue = skipValue * limitValue;
         const data = await Model.find().limit(limitValue).skip(skipValue);
-        //console.log(client);
         await client.set(key, JSON.stringify(data));
         return res.json(data);
       }
@@ -104,6 +90,7 @@ module.exports.edit = async function (req, res, next) {
     res.status(400).json({ message: error.message });
   }
 };
+
 //Deleted the data help of id
 module.exports.delete = async function (req, res, next) {
   try {
@@ -119,7 +106,6 @@ module.exports.delete = async function (req, res, next) {
 exports.forgotPassword = async (req, res) => {
   const email = req.body.email;
   const data = await Model.findOne({ email });
-  console.log(data);
   if (data) {
     const resetUrl = `http://127.0.0.1:3000/api/resetpassword/${data._id}`;
     await sendEmail({

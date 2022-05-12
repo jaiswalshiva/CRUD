@@ -1,6 +1,16 @@
 const Joi = require('joi');
 const { joiPassword } = require('joi-password');
 
+errorFucntion = (schema, req, res, next) => {
+  const { error } = schema.validate(req.body);
+  if (error) {
+    res.json({ message: error.details[0].message });
+    return console.log(error.details[0].message);
+  } else {
+    return next();
+  }
+};
+
 // login validation
 exports.loginValidation = async (req, res, next) => {
   const schema = Joi.object({
@@ -12,13 +22,7 @@ exports.loginValidation = async (req, res, next) => {
       }),
     password: joiPassword.required(),
   });
-  const { error } = schema.validate(req.body);
-  if (error) {
-    res.json({ message: error.details[0].message });
-    return console.log(error.details[0].message);
-  } else {
-    next();
-  }
+  errorFucntion(schema, req, res, next);
 };
 
 // Regstration Validation
@@ -38,13 +42,7 @@ exports.createValidation = async function (req, res, next) {
       .required(),
     password2: Joi.ref('password'),
   });
-  const { error } = schema.validate(req.body);
-  if (error) {
-    res.json({ message: error.details[0].message });
-    return console.log(error.details[0].message);
-  } else {
-    next();
-  }
+  errorFucntion(schema, req, res, next);
 };
 
 // Update/reset Password
@@ -62,13 +60,7 @@ exports.updatePassword = (req, res, next) => {
       .required(),
     confirmpassword: Joi.required.ref('password'),
   });
-  const { error } = schema.validate(req.body);
-  if (error) {
-    res.json({ message: error.details[0].message });
-    return console.log(error.details[0].message);
-  } else {
-    next();
-  }
+  errorFucntion(schema, req, res, next);
 };
 
 // Create Expense Validation
@@ -78,13 +70,8 @@ exports.createExpenseValidation = (req, res, next) => {
     name: Joi.string().required(),
     amount: Joi.number().required(),
     description: Joi.string().required().min(5),
-    userID: Joi.string.require(),
+    userID: Joi.string().require(),
+    category: Joi.string().required(),
   });
-  const { error } = schema.validate(req.body);
-  if (error) {
-    res.json({ message: error.details[0].message });
-    return console.log(error.details[0].message);
-  } else {
-    next();
-  }
+  errorFucntion(schema, req, res, next);
 };

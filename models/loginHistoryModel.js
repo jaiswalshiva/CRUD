@@ -1,15 +1,14 @@
 const mongoose = require('mongoose');
 
-const Schema = mongoose.Schema;
-
-const loginHistory = new Schema(
+const loginHistory = new mongoose.Schema(
   {
-    device: {
-      type: String,
-      required: true,
-    },
     userID: {
       type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    userName: {
+      type: mongoose.Schema.Types.String,
       ref: 'User',
       required: true,
     },
@@ -19,4 +18,5 @@ const loginHistory = new Schema(
     timestamps: true,
   }
 );
+
 module.exports = mongoose.model('userlogin', loginHistory);
